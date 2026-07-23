@@ -1,7 +1,7 @@
 {
   "name": "bundler-smoke-node-cjs",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "dependencies": {
     "@farscrl/hunspell-wasm": "workspace:*"
   }
