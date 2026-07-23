@@ -38,10 +38,15 @@ jobs:
 
       # On merge with pending changesets: opens/updates a "Version Packages" PR.
       # On merge of that PR (version bump already committed, no changesets left): publishes to npm.
+      #
+      # No NPM_TOKEN here on purpose — publishing goes through npm's OIDC trusted publishing
+      # (needs `id-token: write` above, already set). Configure the trusted publisher once at
+      # https://www.npmjs.com/package/@farscrl/hunspell-wasm/access (org: farscrl, repo:
+      # hunspell-wasm, workflow filename: release.yml, allowed action: npm publish) — no
+      # long-lived credential to store, rotate, or leak.
       - name: Version or publish
         uses: changesets/action@v1
         with:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
