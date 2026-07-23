@@ -1,8 +1,9 @@
-# @farscrl/hunspell-wasm
+# Hunspell compiled to WebAssembly
 
-[Hunspell](https://github.com/hunspell/hunspell) spellchecking compiled to WebAssembly, with a
-TypeScript API. Building the wasm binary, the JS bindings, tests, and publishing all live in this
-one repository — there's no separate build repo and no runtime download step.
+`@farscrl/hunspell-wasm` is a TypeScript API over [Hunspell](https://github.com/hunspell/hunspell)
+spellchecking, compiled to WebAssembly. Building the wasm binary, the JS bindings, tests, and
+publishing all live in this one repository — there's no separate build repo and no runtime
+download step.
 
 ```ts
 import { loadModule } from '@farscrl/hunspell-wasm';
@@ -28,6 +29,38 @@ import { HUNSPELL_VERSION } from '@farscrl/hunspell-wasm';
 Works the same from CJS (`require('@farscrl/hunspell-wasm')`) and ESM (`import ... from '@farscrl/hunspell-wasm'`),
 and bundles cleanly under strict `exports`-map resolution (Vite, Webpack 5, Rollup, esbuild,
 Turbopack) — see [`test/bundlers`](./test/bundlers) for runnable proof of each.
+
+## API
+
+### `loadModule(): Promise<HunspellFactory>`
+
+Loads the wasm module and returns a factory bound to it.
+
+### `HunspellFactory`
+
+- `mountBuffer(buffer: Uint8Array, fileName: string): string` — writes `buffer` into the wasm
+  virtual filesystem and returns the path it was mounted at (pass this to `create`/`addDictionary`).
+- `unmount(mountedPath: string): void` — removes a previously mounted file.
+- `create(affPath: string, dictPath: string): HunspellInstance` — creates a hunspell instance from
+  a mounted `.aff` and `.dic` path.
+
+### `HunspellInstance`
+
+- `spell(word: string): boolean` — whether `word` is spelled correctly.
+- `suggest(word: string): string[]` — spelling suggestions for `word`, best-first.
+- `stem(word: string): string[]` — morphological stems for `word` (affix-stripped root forms).
+- `addWord(word: string): void` — adds a word to the in-memory dictionary.
+- `addWordWithAffix(word: string, example: string): void` — adds a word, taking its affix flags
+  from `example` (an existing dictionary entry).
+- `removeWord(word: string): void` — removes a word from the in-memory dictionary.
+- `addDictionary(dictPath: string): boolean` — merges an additional mounted `.dic` file into this
+  instance; returns `false` on failure.
+- `dispose(): void` — frees the underlying wasm-side hunspell instance. The instance is unusable
+  afterwards.
+
+### `HUNSPELL_VERSION: string`
+
+The Hunspell version compiled into this package build (e.g. `'1.7.3'`).
 
 ## Why
 
