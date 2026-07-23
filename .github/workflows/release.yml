@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build:wasm
+
+      # Safety net: ci.yml is what normally gates this (via required status checks on main),
+      # but that's a separate workflow with no inherent ordering against this one — re-check
+      # here too rather than rely solely on branch protection being configured correctly.
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+      # On merge with pending changesets: opens/updates a "Version Packages" PR.
+      # On merge of that PR (version bump already committed, no changesets left): publishes to npm.
+      - name: Version or publish
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
