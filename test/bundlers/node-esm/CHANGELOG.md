@@ -1,0 +1,8 @@
+# bundler-smoke-node-esm
+
+## 0.0.1
+
+### Patch Changes
+
+- Updated dependencies [9233aa6]
+  - @farscrl/hunspell-wasm@1.0.0
