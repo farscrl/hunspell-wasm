@@ -1,0 +1,3 @@
+[submodule "native/vendor/hunspell"]
+	path = native/vendor/hunspell
+	url = https://github.com/hunspell/hunspell.git

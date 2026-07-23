@@ -1,0 +1,74 @@
+{
+  "name": "@farscrl/hunspell-wasm",
+  "version": "0.1.0",
+  "description": "WebAssembly bindings for the Hunspell spellchecker, with a build pipeline included",
+  "type": "module",
+  "license": "MIT",
+  "author": "far ScRL",
+  "keywords": [
+    "hunspell",
+    "spellchecker",
+    "wasm",
+    "webassembly"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farscrl/hunspell-wasm.git"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.29.3",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "generate:version": "node scripts/generate-hunspell-version.mjs",
+    "build:wasm": "DOCKER_BUILDKIT=1 docker build -f native/Dockerfile --target export --output type=local,dest=src/lib .",
+    "prebuild": "pnpm run generate:version",
+    "build": "tsup && pnpm run build:lib",
+    "build:lib": "mkdir -p dist/lib && cp src/lib/hunspell.mjs dist/lib/hunspell.mjs",
+    "pretypecheck": "pnpm run generate:version",
+    "typecheck": "tsc --noEmit",
+    "prelint": "pnpm run generate:version",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "pretest": "pnpm run generate:version",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.1",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.1.1",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.6",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

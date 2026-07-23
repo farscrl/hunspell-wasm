@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wasm-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - id: key
+        run: |
+          echo "key=wasm-${{ hashFiles('native/Dockerfile', 'native/build.sh', 'native/preprocessor.js', 'native/vendor/hunspell/**') }}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        id: cache
+        with:
+          path: src/lib/hunspell.mjs
+          key: ${{ steps.key.outputs.key }}
+
+      # Only rebuilds when the pinned hunspell submodule commit or the build scripts change —
+      # JS/TS-only PRs hit the cache and skip the docker build entirely.
+      - name: Build wasm (docker + emscripten)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pnpm run build:wasm
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: hunspell-wasm-glue
+          path: src/lib/hunspell.mjs
+
+  test:
+    needs: wasm-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: hunspell-wasm-glue
+          path: src/lib
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+  # Direct regression guard for the strict-ESM-bundler interop this project exists to fix.
+  bundler-smoke:
+    needs: wasm-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: hunspell-wasm-glue
+          path: src/lib
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: node test/bundlers/node-esm/check.mjs
+      - run: node test/bundlers/node-cjs/check.cjs
+      - run: pnpm --filter bundler-smoke-vite run check
+      - run: pnpm --filter bundler-smoke-turbopack run check

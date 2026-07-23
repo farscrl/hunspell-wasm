@@ -1,0 +1,9 @@
+{
+  "name": "bundler-smoke-node-esm",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@farscrl/hunspell-wasm": "workspace:*"
+  }
+}
