@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM emscripten/emsdk:6.0.3 AS build
+FROM emscripten/emsdk:6.0.5 AS build
 
 # autotools + gettext: hunspell's build still ships configure.ac/Makefile.am, not CMake.
 RUN apt-get update && apt-get install -y --no-install-recommends \
