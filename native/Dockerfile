@@ -15,7 +15,11 @@ RUN cd vendor/hunspell \
     && emconfigure ./configure --disable-nls --disable-shared --enable-static \
     && emmake make -j"$(nproc)" -C src/hunspell
 
-RUN mkdir -p /out && ./build.sh /out/hunspell.mjs
+# Two glue files: the isomorphic web+node build (default/node-facing export) and a browser-only
+# build with no Node-only branches at all (browser-facing export) — see #17.
+RUN mkdir -p /out \
+    && ./build.sh /out/hunspell.mjs web,node \
+    && ./build.sh /out/hunspell.web.mjs web
 
 FROM scratch AS export
 COPY --from=build /out /

@@ -33,6 +33,13 @@
       "require": "./dist/index.cjs"
     }
   },
+  "imports": {
+    "#hunspell-glue": {
+      "types": "./src/lib/hunspell.d.mts",
+      "browser": "./dist/lib/hunspell.web.mjs",
+      "default": "./dist/lib/hunspell.mjs"
+    }
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -41,7 +48,7 @@
     "build:wasm": "DOCKER_BUILDKIT=1 docker build -f native/Dockerfile --target export --output type=local,dest=src/lib .",
     "prebuild": "pnpm run generate:version",
     "build": "tsup && pnpm run build:lib",
-    "build:lib": "mkdir -p dist/lib && cp src/lib/hunspell.mjs dist/lib/hunspell.mjs",
+    "build:lib": "mkdir -p dist/lib && cp src/lib/hunspell.mjs src/lib/hunspell.web.mjs dist/lib/",
     "pretypecheck": "pnpm run generate:version",
     "typecheck": "tsc --noEmit",
     "prelint": "pnpm run generate:version",

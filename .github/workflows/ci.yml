@@ -29,7 +29,9 @@ jobs:
       - uses: actions/cache@v6
         id: cache
         with:
-          path: src/lib/hunspell.mjs
+          path: |
+            src/lib/hunspell.mjs
+            src/lib/hunspell.web.mjs
           key: ${{ steps.key.outputs.key }}
 
       # Only rebuilds when the pinned hunspell submodule commit or the build scripts change —
@@ -41,7 +43,9 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: hunspell-wasm-glue
-          path: src/lib/hunspell.mjs
+          path: |
+            src/lib/hunspell.mjs
+            src/lib/hunspell.web.mjs
 
   test:
     needs: wasm-build
@@ -87,3 +91,4 @@ jobs:
       - run: node test/bundlers/node-cjs/check.cjs
       - run: pnpm --filter bundler-smoke-vite run check
       - run: pnpm --filter bundler-smoke-turbopack run check
+      - run: pnpm --filter bundler-smoke-browser-esbuild run check
