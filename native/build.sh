@@ -4,7 +4,12 @@
 # native/vendor/hunspell/src/hunspell/.libs/libhunspell-*.a
 set -euo pipefail
 
-out="${1:?usage: build.sh <output.mjs>}"
+out="${1:?usage: build.sh <output.mjs> [environment]}"
+# Emscripten's -s ENVIRONMENT value. Defaults to the isomorphic web+node build (used for the
+# "default"/node-facing package export); pass just "web" for the browser-only build (used for
+# the "browser" condition) so it never emits Node-only branches like `import("node:module")` —
+# see package.json's "imports" field and #17.
+environment="${2:-web,node}"
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 lib="$(ls "$here"/vendor/hunspell/src/hunspell/.libs/libhunspell-*.a)"
 
@@ -38,7 +43,7 @@ em++ \
   -s MODULARIZE=1 \
   -s EXPORT_ES6=1 \
   -s EXPORT_NAME=createHunspellModule \
-  -s ENVIRONMENT=web,node \
+  -s "ENVIRONMENT=$environment" \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s NO_EXIT_RUNTIME=1 \
   -s NODEJS_CATCH_REJECTION=0 \

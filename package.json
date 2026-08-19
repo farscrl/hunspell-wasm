@@ -33,6 +33,13 @@
       "require": "./dist/index.cjs"
     }
   },
+  "imports": {
+    "#hunspell-glue": {
+      "types": "./src/lib/hunspell.d.mts",
+      "browser": "./dist/lib/hunspell.web.mjs",
+      "default": "./dist/lib/hunspell.mjs"
+    }
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -41,13 +48,13 @@
     "build:wasm": "DOCKER_BUILDKIT=1 docker build -f native/Dockerfile --target export --output type=local,dest=src/lib .",
     "prebuild": "pnpm run generate:version",
     "build": "tsup && pnpm run build:lib",
-    "build:lib": "mkdir -p dist/lib && cp src/lib/hunspell.mjs dist/lib/hunspell.mjs",
+    "build:lib": "mkdir -p dist/lib && cp src/lib/hunspell.mjs src/lib/hunspell.web.mjs dist/lib/",
     "pretypecheck": "pnpm run generate:version",
     "typecheck": "tsc --noEmit",
     "prelint": "pnpm run generate:version",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "pretest": "pnpm run generate:version",
+    "pretest": "pnpm run generate:version && pnpm run build:lib",
     "test": "vitest run",
     "test:watch": "vitest",
     "changeset": "changeset",
@@ -57,14 +64,14 @@
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
     "@eslint/js": "^10.0.1",
-    "@types/node": "^26.1.1",
-    "eslint": "^10.7.0",
-    "globals": "^17.7.0",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0",
     "prettier": "^3.9.6",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.65.0",
-    "vitest": "^4.1.10"
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.11"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
