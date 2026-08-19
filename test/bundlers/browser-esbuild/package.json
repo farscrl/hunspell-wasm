@@ -1,7 +1,7 @@
 {
   "name": "bundler-smoke-browser-esbuild",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "check": "node check.mjs"
