@@ -54,7 +54,7 @@
     "prelint": "pnpm run generate:version",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "pretest": "pnpm run generate:version",
+    "pretest": "pnpm run generate:version && pnpm run build:lib",
     "test": "vitest run",
     "test:watch": "vitest",
     "changeset": "changeset",
