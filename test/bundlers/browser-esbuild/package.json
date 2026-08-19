@@ -10,6 +10,6 @@
     "@farscrl/hunspell-wasm": "workspace:*"
   },
   "devDependencies": {
-    "esbuild": "^0.27.7"
+    "esbuild": "^0.28.2"
   }
 }
