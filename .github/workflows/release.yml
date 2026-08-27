@@ -45,7 +45,7 @@ jobs:
       # hunspell-wasm, workflow filename: release.yml, allowed action: npm publish) — no
       # long-lived credential to store, rotate, or leak.
       - name: Version or publish
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           publish: pnpm release
         env:
